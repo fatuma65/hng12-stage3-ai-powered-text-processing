@@ -62,7 +62,6 @@ const InterfaceProvider = ({ children }) => {
       setOutput(true);
 
       const languageAvailability = await ai.languageDetector.capabilities();
-      console.log(languageAvailability)
 
       if (languageAvailability.available === "no") {
         setError("Language detection is not supported.");

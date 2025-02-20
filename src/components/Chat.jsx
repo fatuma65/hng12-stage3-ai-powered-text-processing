@@ -48,7 +48,6 @@ const Chat = () => {
         .find((message) => message.type === "user");
 
       const textFromUser = outPutText.text;
-      console.log(textFromUser);
 
       const translatedText = await translateText(
         textFromUser,
@@ -136,7 +135,7 @@ const Chat = () => {
 
   const summarizeText = async (text) => {
     // Check summarization availabilty
-    
+
     if ("ai" in self && "summarizer" in self.ai) {
       const summarizerAvailabilty = await ai.summarizer.capabilities();
 
