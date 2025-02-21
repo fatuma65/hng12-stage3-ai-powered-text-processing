@@ -18,7 +18,7 @@ This application will allow users to input text and utilize features such as sum
 - Chrome AI APIs: To process the input text asynchronously
 - Tailwind: To rapidly build modern websites.
 
-### Installation
+## Installation
 
 1. Clone the Repository:
 
@@ -38,7 +38,7 @@ DownLoad Chrome Canary
 
 Turn on experimental feature flag in your Chrome browser to access the native AI APIs.
 
-[vist](https://developer.chrome.com/docs/ai/) to get started
+[Vist Chrome APIs](https://developer.chrome.com/docs/ai/) to get started
 
 ```env
 VITE_TRANSLATOR_TOKEN=your-translator-origin-trial

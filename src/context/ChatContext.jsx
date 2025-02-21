@@ -32,6 +32,7 @@ const InterfaceProvider = ({ children }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!inputText.trim()) {
       setError("Please enter your message");
       return;
@@ -58,16 +59,19 @@ const InterfaceProvider = ({ children }) => {
   };
 
   const detectLanguage = async (text) => {
+    // Check if the language detector is able to run on user machine
     if ("ai" in self && "languageDetector" in self.ai) {
       setOutput(true);
 
       const languageAvailability = await ai.languageDetector.capabilities();
 
+      // if not available, show an error
       if (languageAvailability.available === "no") {
         setError("Language detection is not supported.");
         return;
       }
 
+      // if available, but needs to be downloaded, request for the download
       if (languageAvailability.available === "after-download") {
         try {
           setLoading(true);
@@ -84,24 +88,33 @@ const InterfaceProvider = ({ children }) => {
           setLoading(false);
         }
       }
+
+      // if available, detect the language
       const detector = await ai.languageDetector.create();
 
       const results = await detector.detect(text);
 
       if (!results || results.length === 0) {
-        console.log("No language detected.");
+        setError("No language detected.");
         return;
       }
 
+      // get the best match
       const bestMatch = results.reduce((max, lang) =>
         lang.confidence > max.confidence ? lang : max
       );
 
+      // if the confidence is less than 0.4, show an error
       if (bestMatch.confidence < 0.4) {
-        setError("Language is not being detected, Returning input text");
+        setError("Language is not detected");
+
+        setTimeout(() => {
+          setError("");
+        }, 2000);
         return inputText;
       }
 
+      // show the detected language
       setMessages((prev) => [
         ...prev,
         {

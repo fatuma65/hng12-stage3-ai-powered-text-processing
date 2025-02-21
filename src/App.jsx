@@ -1,12 +1,10 @@
-
 import Home from "./pages/Home";
-import 'boxicons'
+import "boxicons";
 
 const App = () => {
   return (
-    // <SummarizerAPI />
     <>
-     <Home />
+      <Home />
     </>
   );
 };

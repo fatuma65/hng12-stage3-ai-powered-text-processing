@@ -6,8 +6,6 @@ const ActiveButtons = ({
   handleSummarize,
   loading,
   handleTranslate,
-  inputText,
-  detectedLanguage,
 }) => {
   return (
     <div className="w-full max-w-3xl flex items-center gap-4 mb-4">
@@ -16,9 +14,7 @@ const ActiveButtons = ({
         onChange={handleLanguageChange}
         className="px-4 py-2 bg-gray-700 text-white border border-gray-500 rounded-md focus:ring-1 focus:ring-yellow-400"
         aria-label="Select language">
-        <option value="" default>
-          Select Language
-        </option>
+        <option value="">Select Language</option>
         {targetLanguages.map((lang) => (
           <option key={lang.target} value={lang.target}>
             {lang.label}
@@ -35,16 +31,12 @@ const ActiveButtons = ({
         Translate
       </button>
 
-      {inputText.length > 150 &&
-        detectedLanguage !==
-          "en"(
-            <button
-              className="px-2 py-2 bg-[#859F3C] cursor-pointer text-white rounded-md focus:ring-2 focus:ring-yellow-400"
-              onClick={handleSummarize}
-              aria-label="Summarize text">
-              Summarize
-            </button>
-          )}
+      <button
+        className="px-4 py-2 border-2 font-semibold cursor-pointer text-white rounded-md focus:ring-2 focus:ring-yellow-400"
+        onClick={handleSummarize}
+        aria-label="Summarize text">
+        Summarize
+      </button>
     </div>
   );
 };
