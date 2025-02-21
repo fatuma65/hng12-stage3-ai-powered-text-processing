@@ -27,21 +27,29 @@ const Chat = () => {
   }, [messages]);
 
   const handleTranslate = async () => {
+    // check if the selected language is not the same as the detected language
     if (!selectedLanguage) {
       setError("Please enter text and select a language.");
       return;
     }
 
+    // if its the same, we throw an error.
     if (selectedLanguage === detectedLanguage) {
       setError("Please select a different language.");
+
+      setTimeout(() => {
+        setError("");
+      }, 2000);
       return;
     }
 
+    // clear the error
     setError("");
 
     try {
       setLoading(true);
 
+      // get the output text from the user
       const outPutText = messages
         .slice()
         .reverse()
@@ -59,7 +67,7 @@ const Chat = () => {
         { type: "bot", text: `Translation: ${translatedText}` },
       ]);
     } catch (error) {
-      setError("Failed to translate text.");
+      setError("Unable to translate text, Please try again");
       console.error("Error translating text:", error);
     } finally {
       setLoading(false);
@@ -67,19 +75,26 @@ const Chat = () => {
   };
 
   const handleSummarize = async () => {
+    // check if the text is over 150 characters and the language detected is english.
     if (inputText <= 150 || detectedLanguage !== "en") {
       setError(
-        "Summarization is only available for English text over 150 characters."
+        "Summarization is only available for English texts over 150 characters."
       );
+
+      setTimeout(() => {
+        setError("");
+      }, 2000);
+
       return;
     }
 
-    setLoading(true);
     setError("");
 
     try {
+      setLoading(true);
       const summary = await summarizeText(inputText);
 
+      // Update the existing messages array with a new object having a bot and summarized text
       setMessages((prev) => [
         ...prev,
         { type: "bot", text: `Summary: ${summary}` },
@@ -93,6 +108,7 @@ const Chat = () => {
   };
 
   const translateText = async (text, targetLanguage) => {
+    // Check if the translater API is enabled in the user's device
     if ("ai" in self && "translator" in self.ai) {
       const translateAvailabilty = await ai.translator.capabilities();
 
@@ -109,44 +125,56 @@ const Chat = () => {
         )
       ) {
         setError("Language model not available, downloading...");
-
+        return;
+      } else if (translateAvailabilty.available === "after-download") {
         // Request the language model download
+        try {
+          setLoading(true);
+          await translateAvailabilty.downloadLanguagePair(
+            selectedLanguage,
+            targetLanguage
+          );
 
-        setLoading(true);
-        await translateAvailabilty.downloadLanguagePair(
-          selectedLanguage,
-          targetLanguage
-        );
-
-        setError("Language model downloaded successfully.");
+          setError("Language model downloaded successfully.");
+        } catch (error) {
+          setError("Unable to download Languages", error);
+          return;
+        } finally {
+          setLoading(false);
+        }
       }
+
       const translator = await ai.translator.create({
         sourceLanguage: detectedLanguage,
         targetLanguage: targetLanguage,
       });
-
+      //  wait for the model to translate user text.
       const translatedText = await translator.translate(text);
 
       return translatedText;
     } else {
+      // if not available, show an error
       setError("The Translator API is not supported on your device");
     }
   };
 
   const summarizeText = async (text) => {
-    // Check summarization availabilty
+    // Check summarization abililty to run on user machine
 
     if ("ai" in self && "summarizer" in self.ai) {
       const summarizerAvailabilty = await ai.summarizer.capabilities();
 
+      // if not available, show an error
       if (summarizerAvailabilty.available === "no") {
-        console.log("Summarizer API is not supported.");
         setError("Summarizer API is not supported.");
         return;
       }
 
+      // if available, but needs to be downloaded
       if (summarizerAvailabilty.available === "after-download") {
         try {
+          setLoading(true);
+          // request for it to be downloaded
           await self.ai.summarizer.create({
             monitor(m) {
               m.addEventListener("downloadprogress", (e) => {
@@ -156,9 +184,12 @@ const Chat = () => {
           });
         } catch (error) {
           setError("Unable to download language model", error);
+        } finally {
+          setLoading(false);
         }
       }
 
+      // if its available and ready to run, give it the text to summarize.
       const summarizer = await ai.summarizer.create();
       const summary = await summarizer.summarize(text);
       return summary;
@@ -168,7 +199,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="chat-container min-h-screen flex flex-col items-center bg-[#030712] px-4 py-4">
+    <div className="chat-container min-h-screen flex flex-col items-center bg-[#030712] px-4 py-8">
       {output ? (
         <>
           <OutputContainer />
